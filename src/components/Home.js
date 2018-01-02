@@ -6,6 +6,7 @@ export default class Home extends Component {
 	render() {
 		return (
 			<div>
+				<br/>
 				<Link to='/all-items'>All Items</Link>
 				<br/>
 				<Link to='/make-list'>Make List</Link>

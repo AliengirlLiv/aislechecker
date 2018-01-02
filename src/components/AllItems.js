@@ -15,7 +15,7 @@ export default class AllItems extends Component {
 	render() {
 		return (
 			<div>
-			Format: Store, Aisle, Item
+			Format: Store, Aisle, Bin, Item
 				{this.state.items.map((item, index) => {
 					return( 
 						<div key={index}>
@@ -24,6 +24,7 @@ export default class AllItems extends Component {
 								<FormControl value={item[0]} onChange={(e) => this.updateItem(e, 0, index)} />
 								<FormControl value={item[1]} onChange={(e) => this.updateItem(e, 1, index)} />
 								<FormControl value={item[2]} onChange={(e) => this.updateItem(e, 2, index)} />
+								<FormControl value={item[3]} onChange={(e) => this.updateItem(e, 3, index)} />
 							</FormGroup>
 							<Button onClick={() => this.removeItem(index)}>X</Button>
 						</div>
@@ -57,7 +58,7 @@ export default class AllItems extends Component {
 
 	addItem() {
 		var items = this.state.items;
-		items.push(["", "", ""]);
+		items.push(["", "", "", ""]);
 		this.setState({items:items});
 	}
 }

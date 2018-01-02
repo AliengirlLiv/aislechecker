@@ -35,3 +35,11 @@
 .green {
   background-color: green;
 }
+
+body {
+  font: normal 20px Arial, sans-serif;
+}
+
+button {
+  font: normal 24px Arial, sans-serif;
+}

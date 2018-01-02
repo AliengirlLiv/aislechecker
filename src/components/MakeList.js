@@ -56,19 +56,31 @@ export default class MakeList extends Component {
 		firebase.database().ref("lists").update(obj);
 	}
 
+
 	displayCurrentList() {
+		var list = this.state.formattedList;
+		list.sort(this.keySort);
 		return(
 			<div>
-				{this.state.formattedList.map((store, index) => {
+				{list.map((store, index) => {
+					store.val.sort(this.keySort);
 					return(
 						<div>
-							<h2>{store.key}</h2>
+							<h2>{"Store: " + store.key}</h2>
 							{store.val.map((aisle, index) => {
+								aisle.val.sort(this.keySort);
 								return(
 									<div>
-										<h3>{aisle.key}</h3>
-										{aisle.val.map((item, index) => {
-											return(<div>{item}<br/></div>);
+										<h3>{"Aisle " + aisle.key}</h3>
+										{aisle.val.map((bin, index) => {
+											bin.val.sort();
+											return(
+												<div>
+												{bin.val.map((item, index) => {
+													return(<div>{item + " (Bin " + bin.key + ")"}<br/></div>);
+												})}
+												</div>
+											)
 										})}
 									</div>
 								)
@@ -80,6 +92,18 @@ export default class MakeList extends Component {
 		)
 	}
 
+	keySort(a, b) {
+		const first = a.key.toLowerCase();
+		const second = b.key.toLowerCase();
+		if (first < second) {
+			return -1;
+		}
+		if (first > second) {
+			return 1;
+		}
+		return 0;
+	}
+
 	updateName(e) {
 		this.setState({name: e.target.value});
 	}
@@ -88,7 +112,7 @@ export default class MakeList extends Component {
 		const inputValue = e.value.trim().toLowerCase();
 		const inputLength = inputValue.length;
 		const suggestions = inputLength === 0 ? [] : this.props.allItems.filter(item =>
-			item[2].toLowerCase().slice(0, inputLength) === inputValue
+			item[3].toLowerCase().slice(0, inputLength) === inputValue
 		);
 
 		this.setState({suggestions: suggestions});
@@ -96,42 +120,54 @@ export default class MakeList extends Component {
 
 	getSuggestionValue(suggestion) {
 		this.addToList(suggestion);
-		return suggestion[2];
+		return suggestion[3];
 	}
 
 	addToList(item) {
 		var store = item[0];
 		var aisle = item[1];
-		var name = item[2];
+		var bin = item[2];
+		var name = item[3];
 		var list = this.state.list;
 		for (var s of list) {
 			var foundStore = false;
 			if (s.key === store) {
 				foundStore = true;
+				var foundAisle = false;
 				for (var a of s.val) {
-					var foundAisle = false;
 					if (a.key === aisle) {
-						a.val.push(name);
 						foundAisle = true;
+						var foundBin = false;
+						for (var b of a.val) {
+							if (b.key === bin) {
+								foundBin = true;
+								b.val.push(name);
+								break;
+							}
+						}
+						if (!foundBin) {
+							a.val.push({key: bin, val:[name]});
+						}	
 						break;
 					}
-					if (!foundAisle) {
-						s.push([{key: aisle, val: [name]}]);
-					}
+				}
+				if (!foundAisle) {
+					s.val.push({key: aisle, val: [{key: bin, val:[name]}]});
 				}
 				break;
 			}
 		}
 		if (!foundStore) {
-			list.push({key: store, val: [{key: aisle, val: [name]}]});
+			list.push({key: store, val: [{key: aisle, val: [{key: bin, val: [name]}]}]});
 		}
+		console.log("FORMATTED LIST", list);
 		this.setState({formattedList: list});
 	}
 
 	renderSuggestion(suggestion) {
 		return(
 			<Button>
-				{suggestion[2] + "(" + suggestion[0] + ")"}
+				{suggestion[3] + " (" + suggestion[0] + ")"}
 			</Button>
 		)
 	}
