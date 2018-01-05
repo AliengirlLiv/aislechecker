@@ -20,6 +20,18 @@ export default class MakeList extends Component {
 		}
 	}
 
+	componentWillReceiveProps(props) {
+		const name = props.match.params.name;
+		if (this.state && this.state.formattedList.length === 0 && name) {
+			if (props.lists[name]) {
+				this.setState({
+					name: name,
+					formattedList: props.lists[name]
+				});
+			}
+		}
+	}
+
 	render() {
 		const value = this.state.value;
 		const inputProps = {
@@ -30,12 +42,12 @@ export default class MakeList extends Component {
 		return (
 			<div>
 				<Autosuggest
-					suggestions={this.state.suggestions}//
-					onSuggestionsFetchRequested={this.onSuggestionsFetchRequested.bind(this)}//
-					onSuggestionsClearRequested={this.onSuggestionsClearRequested.bind(this)}//
-					getSuggestionValue={this.getSuggestionValue.bind(this)}//
-					renderSuggestion={this.renderSuggestion}//
-					inputProps={inputProps}//
+					suggestions={this.state.suggestions}
+					onSuggestionsFetchRequested={this.onSuggestionsFetchRequested.bind(this)}
+					onSuggestionsClearRequested={this.onSuggestionsClearRequested.bind(this)}
+					getSuggestionValue={this.getSuggestionValue.bind(this)}
+					renderSuggestion={this.renderSuggestion}
+					inputProps={inputProps}
 				/>
 				<h1>Current List</h1>
 				{this.displayCurrentList()}
@@ -43,7 +55,7 @@ export default class MakeList extends Component {
 					<ControlLabel>List Name</ControlLabel>
 					<FormControl value={this.state.name} onChange={(e) => this.updateName(e)} />
 				</FormGroup>
-				{this.state.name && <Button onClick={() => this.saveList()}>Save as New List</Button>}
+				{this.state.name && <Button onClick={() => this.saveList()}>{(this.props.match.params.name && this.props.match.params.name === this.state.name) ? "Save as Updated List" : "Save as New List"}</Button>}
 				<br/>
 				<Button onClick={() => this.goToShopView()}>Use This List (must save changes first)</Button>
 			</div>
@@ -65,19 +77,19 @@ export default class MakeList extends Component {
 				{list.map((store, index) => {
 					store.val.sort(this.keySort);
 					return(
-						<div>
+						<div key={store.key}>
 							<h2>{"Store: " + store.key}</h2>
 							{store.val.map((aisle, index) => {
 								aisle.val.sort(this.keySort);
 								return(
-									<div>
+									<div key={aisle.key}>
 										<h3>{"Aisle " + aisle.key}</h3>
 										{aisle.val.map((bin, index) => {
 											bin.val.sort();
 											return(
-												<div>
+												<div key={bin.key}>
 												{bin.val.map((item, index) => {
-													return(<div>{item + " (Bin " + bin.key + ")"}<br/></div>);
+													return(<div key={index}>{item + " (Bin " + bin.key + ")"}<Button onClick={() => this.deleteItem(store.key, aisle.key, bin.key, item)}>x</Button><br/></div>);
 												})}
 												</div>
 											)
@@ -90,6 +102,38 @@ export default class MakeList extends Component {
 				})}
 			</div>
 		)
+	}
+
+	deleteItem(store, aisle, bin, item) {
+		var list = this.state.formattedList;
+		for (var storeObj of list) {
+			if (storeObj.key === store) {
+				for (var aisleObj of storeObj.val) {
+					if (aisleObj.key === aisle) {
+						for (var binObj of aisleObj.val) {
+							if (binObj.key === bin) {
+								const itemIndex = binObj.val.indexOf(item);
+								binObj.val.splice(itemIndex, 1);
+								if (binObj.val.length === 0) {
+									const binIndex = aisleObj.val.indexOf(binObj);
+									aisleObj.val.splice(binIndex, 1);
+									if (aisleObj.val.length === 0) {
+										const aisleIndex = storeObj.val.indexOf(aisleObj);
+										storeObj.val.splice(aisleIndex, 1);
+										if (storeObj.val.length === 0) {
+											const storeIndex = list.indexOf(storeObj);
+											list.splice(storeIndex, 1);
+										}
+									}
+								}
+								this.setState({formattedList: list});
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	keySort(a, b) {
@@ -128,7 +172,7 @@ export default class MakeList extends Component {
 		var aisle = item[1];
 		var bin = item[2];
 		var name = item[3];
-		var list = this.state.list;
+		var list = this.state.formattedList;
 		for (var s of list) {
 			var foundStore = false;
 			if (s.key === store) {
@@ -160,8 +204,6 @@ export default class MakeList extends Component {
 		if (!foundStore) {
 			list.push({key: store, val: [{key: aisle, val: [{key: bin, val: [name]}]}]});
 		}
-		console.log("FORMATTED LIST", list);
-		this.setState({formattedList: list});
 	}
 
 	renderSuggestion(suggestion) {

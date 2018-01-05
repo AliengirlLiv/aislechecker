@@ -25,8 +25,9 @@ class App extends Component {
           <Route  path="/all-items"
               render={(props) => <AllItems {...props}
                 allItems={this.state.items}/>} />
-          <Route  path="/make-list"
+          <Route  path="/make-list/:name?"
               render={(props) => <MakeList {...props} 
+                lists={this.state.lists}
                 allItems={this.state.items}/>} />
           <Route  path="/shopping-list/:name"
               render={(props) => <ShoppingList {...props}
@@ -58,7 +59,6 @@ class App extends Component {
   loadLists() {
     var listsRef = firebase.database().ref('/lists');
     listsRef.on("value", function(snapshot) {
-      console.log("before", snapshot.val());
       if (snapshot.val()) {
         var lists = snapshot.val();
         this.setState({lists: lists});

@@ -12,20 +12,20 @@ export default class ShoppingList extends Component {
 				{list.map((store, index) => {
 					store.val.sort(this.keySort);
 					return(
-						<div>
+						<div key={store.key}>
 							<h2>{"Store: " + store.key}</h2>
 							{store.val.map((aisle, index) => {
 								aisle.val.sort(this.keySort);
 								return(
-									<div>
+									<div key={aisle.key}>
 										<h3>{"Aisle " + aisle.key}</h3>
 										{aisle.val.map((bin, index) => {
 											bin.val.sort();
 											return(
-												<div>
+												<div key={bin.key}>
 													{bin.val.map((item, index) => {
 														return(
-															<div>
+															<div key={item}>
 																<Button onClick={(e) => this.handleClick(e)} className="red">{item + " (Bin " + bin.key + ")"}</Button><br/>
 															</div>
 														)
@@ -45,7 +45,6 @@ export default class ShoppingList extends Component {
 
 
 	keySort(a, b) {
-		console.log("keysorgint!!!");
 		const first = a.key.toLowerCase();
 		const second = b.key.toLowerCase();
 		if (first < second) {
