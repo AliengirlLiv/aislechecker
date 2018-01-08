@@ -43,3 +43,12 @@ body {
 button {
   font: normal 24px Arial, sans-serif;
 }
+
+.bottom-fixed {
+  display: block;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  background-color: gray;
+  margin-top: 10px
+}
