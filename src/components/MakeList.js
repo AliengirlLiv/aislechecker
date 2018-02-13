@@ -94,7 +94,7 @@ export default class MakeList extends Component {
 		}
 		return(
 			<div>
-				<DropdownButton bsStyle="success" title={this.state.store ? this.state.store : "Select Store"} id="select-store-dropdown">
+				<DropdownButton bsStyle="warning" title={this.state.store ? this.state.store : "Select Store"} id="select-store-dropdown">
 					{this.state.allItems.map((item) => {
 						return(
 						<MenuItem key={item.key} onSelect={() => this.setState({store: item.key})}>{item.key}</MenuItem>

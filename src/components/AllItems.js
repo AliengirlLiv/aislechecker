@@ -39,7 +39,7 @@ export default class AllItems extends Component {
 				<div className="bottom-fixed">
 					<Button onClick={() => this.addItem()}>+</Button>
 					<br/>
-					<Button bsStyle={this.state.saved ? "success" : ""} onClick={() => this.save()}>Save</Button>
+					<Button bsStyle={this.state.saved ? "success" : "default"} onClick={() => this.save()}>Save</Button>
 				</div>
 			</div>
 		)
